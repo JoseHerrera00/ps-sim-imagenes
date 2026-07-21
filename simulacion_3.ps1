@@ -8,6 +8,16 @@ public class CursorControl {
 }
 "@
 
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+
+public class InputControl {
+    [DllImport("user32.dll")]
+    public static extern bool BlockInput(bool fBlockIt);
+}
+"@
+
 # Cargar librerías de WPF y Forms
 Add-Type -AssemblyName PresentationFramework
 Add-Type -AssemblyName PresentationCore
@@ -118,8 +128,8 @@ function Show-ImagesSequentially {
     )
 
     $imageDisplayTimes = @(
-        5,
-        5
+        20,
+        21
     )
 
     # --- INICIO DE AUDIO ---
@@ -130,9 +140,9 @@ function Show-ImagesSequentially {
         $player.Open([Uri]::new("file:///" + $audioPath.Replace('\', '/')))
         $player.Play()
 
-        # Detener el audio después de 3 segundos
+        # Detener el audio después de 20 segundos
         $timer = New-Object System.Timers.Timer
-        $timer.Interval = 3000
+        $timer.Interval = 20000
         $timer.AutoReset = $false
         $timer.add_Elapsed({
             $player.Stop()
@@ -183,6 +193,8 @@ function Show-ImageOnSecondaryMonitor {
 function Run-Process {
     $secondaryWindow = $null
     try {
+        [CursorControl]::ShowCursor($false)  # Ocultar cursor
+        [InputControl]::BlockInput($true)  # Bloquear teclado y mouse
 
         # Obtener monitores
         $monitorPrincipal = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
@@ -204,6 +216,8 @@ function Run-Process {
         if ($secondaryWindow -ne $null) {
             $secondaryWindow.Dispatcher.Invoke([Action]{ $secondaryWindow.Close() })
         }
+        [InputControl]::BlockInput($false)  # Restaurar input
+        [CursorControl]::ShowCursor($true)  # Restaurar cursor
     }
 }
 
