@@ -29,5 +29,16 @@ $Trigger = New-ScheduledTaskTrigger -Once -At $horaEjecucion
 # Obtener el usuario actual para ejecutar la tarea con ese usuario
 $usuario = (Get-WmiObject -Class Win32_ComputerSystem).UserName
 
+# MultipleInstances Parallel: el valor por defecto de Register-ScheduledTask es
+# "IgnoreNew" -- si se dispara la tarea mientras Windows todavía considera que una
+# instancia anterior sigue "corriendo" (ej. al usar el botón "Correr simulación" más de
+# una vez seguida), el nuevo disparo se ignora en silencio: no hay error, pero tampoco
+# pasa nada visible (confirmado en una prueba real: la tarea quedó en estado "Queued" y
+# los disparos siguientes no mostraban nada, aunque CrowdStrike reportara éxito).
+# "StopExisting" sería la opción ideal pero este módulo de PowerShell no la acepta como
+# valor de -MultipleInstances (confirmado con el error real: solo admite Parallel, Queue,
+# IgnoreNew) — se usa Parallel para que cada disparo arranque siempre, sin esperar.
+$Settings = New-ScheduledTaskSettingsSet -MultipleInstances Parallel
+
 # Registrar o reemplazar la tarea programada con privilegios elevados
-Register-ScheduledTask -TaskName "InteractiveTask" -Action $Action -Trigger $Trigger -RunLevel Highest -User $usuario -Force
+Register-ScheduledTask -TaskName "InteractiveTask" -Action $Action -Trigger $Trigger -Settings $Settings -RunLevel Highest -User $usuario -Force
