@@ -14,7 +14,7 @@ if (-not (Test-Path $rutaAudio)) {
 }
 
 # Definir la hora a la que se debe ejecutar la tarea
-$horaEjecucion = Get-Date -Year 2026 -Month 7 -Day 18 -Hour 17 -Minute 18 -Second 0
+$horaEjecucion = Get-Date -Year 2026 -Month 7 -Day 21 -Hour 13 -Minute 20 -Second 0
 
 # Crear la acción para ejecutar el script con PowerShell
 # -ExecutionPolicy Bypass: sin esto, la tarea falla de inmediato con PSSecurityException en
