@@ -6,11 +6,22 @@ if (-not (Test-Path $rutaContenido)) {
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JoseHerrera00/ps-sim-imagenes/main/simulacion_3.ps1" -OutFile $rutaContenido -UseBasicParsing
 }
 
+# El audio puede haber llegado ya al equipo vía CrowdStrike RTR; si no está, se descarga.
+$rutaAudio = "C:\Temp\Popupvideo.mp3"
+if (-not (Test-Path $rutaAudio)) {
+    Write-Host "El archivo de audio no está en el equipo, descargando desde el repositorio..."
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JoseHerrera00/ps-sim-imagenes/main/Popupvideo.mp3" -OutFile $rutaAudio -UseBasicParsing
+}
+
 # Definir la hora a la que se debe ejecutar la tarea
-$horaEjecucion = Get-Date -Year 2026 -Month 7 -Day 18 -Hour 16 -Minute 40 -Second 0
+$horaEjecucion = Get-Date -Year 2026 -Month 7 -Day 18 -Hour 17 -Minute 18 -Second 0
 
 # Crear la acción para ejecutar el script con PowerShell
-$Action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-NoProfile -WindowStyle Normal -File "C:\Temp\simulacion_3.ps1"'
+# -ExecutionPolicy Bypass: sin esto, la tarea falla de inmediato con PSSecurityException en
+# cualquier equipo con política de ejecución restringida (el valor por defecto en muchos
+# equipos corporativos), porque -File sí aplica la política de ejecución (a diferencia de
+# -Command/-Raw por RTR, que no la dispara) — confirmado en una prueba real (2026-07-21).
+$Action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-NoProfile -ExecutionPolicy Bypass -WindowStyle Normal -File "C:\Temp\simulacion_3.ps1"'
 
 # Crear el trigger para que se ejecute solo una vez en la fecha y hora especificadas
 $Trigger = New-ScheduledTaskTrigger -Once -At $horaEjecucion
