@@ -128,8 +128,8 @@ function Show-ImagesSequentially {
     )
 
     $imageDisplayTimes = @(
-        20,
-        21
+        60,
+        60
     )
 
     # --- INICIO DE AUDIO ---
@@ -140,9 +140,9 @@ function Show-ImagesSequentially {
         $player.Open([Uri]::new("file:///" + $audioPath.Replace('\', '/')))
         $player.Play()
 
-        # Detener el audio después de 20 segundos
+        # Detener el audio después de 58 segundos
         $timer = New-Object System.Timers.Timer
-        $timer.Interval = 20000
+        $timer.Interval = 58000
         $timer.AutoReset = $false
         $timer.add_Elapsed({
             $player.Stop()
